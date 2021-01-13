@@ -19,4 +19,16 @@ Each redirector is added to the REDIRECTORS tuple in this module. If one or more
 
 
 REDIRECTORS = (
+    house_bill,
 )
+
+
+def house_bill(q):
+    # This will be written more robustly Soon(tm).
+    if isascii(q) and len(q) >= 3 and q[0] in 'hH' and q[1] in 'bB' and isdecimal(q[2:]):
+        num = q[2:]
+        return (True, 'https://capitol.texas.gov/BillLookup/History.aspx?LegSess=87R&Bill=HB{}'.format(num))
+    else:
+        return (False, None)
+house_bill.title = 'House bill, by number'
+house_bill.pattern = 'hb<number>'
