@@ -33,6 +33,8 @@ def current_lege(date=None, prefiling=False):
 
     If date is None, uses the system date and time in Central Time. Otherwise, the date given must be an Arrow object and is converted to Central Time.
     If prefiling is True, the prefiling period is counted as part of the legislative session that is set to convene.
+
+    WARNING: if you create an Arrow object without specifying a time zone, then pass it into this method, it will default to UTC, be changed to the preceding day when it is converted to Central Time, and return results for the day prior to the one you wanted. To fix this, pass tzinfo='US/Central' to the Arrow constructor.
     """
     if date is None:
         date = arrow.now('US/Central')
