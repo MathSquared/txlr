@@ -4,7 +4,7 @@ import arrow
 
 
 def lege_year(lege):
-    """First year of session. Accurate from 12th Legislature onwards."""
+    """First year of the regular session of the given legislature. Accurate from 12th Legislature onwards."""
     return 1847 + 2 * lege
 
 
@@ -14,17 +14,17 @@ def year_lege(year):
 
 
 def prefiling_date(lege):
-    """The first Monday after Election Day; the second Monday in November."""
+    """The first Monday after Election Day; the second Monday in November. The day on which legislators and legislators-elect may begin to file bills and resolutions for the succeeding session."""
     return arrow.Arrow(lege_year(lege) - 1, 11, 8).shift(weekday=0)
 
 
 def convening_date(lege):
-    """The second Tuesday in January."""
+    """The second Tuesday in January. The constitutional day on which the regular session of the Legislature convenes at noon for its opening day."""
     return arrow.Arrow(lege_year(lege), 1, 8).shift(weekday=1)
 
 
 def adjourning_date(lege):
-    """The 139th day after the convening date."""
+    """The 139th day after the convening date. The constitutional day beyond which the regular session of the Legislature cannot continue."""
     return convening_date(lege).shift(days=+139)
 
 
