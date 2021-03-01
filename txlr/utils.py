@@ -22,12 +22,12 @@ def year_lege(year):
 
 def prefiling_date(lege):
     """The first Monday after Election Day; the second Monday in November. The day on which legislators and legislators-elect may begin to file bills and resolutions for the succeeding session."""
-    return arrow.Arrow(lege_year(lege) - 1, 11, 8).shift(weekday=0)
+    return arrow.Arrow(lege_year(lege) - 1, 11, 8, tzinfo='US/Central').shift(weekday=0)
 
 
 def convening_date(lege):
     """The second Tuesday in January. The constitutional day on which the regular session of the Legislature convenes at noon for its opening day."""
-    return arrow.Arrow(lege_year(lege), 1, 8).shift(weekday=1)
+    return arrow.Arrow(lege_year(lege), 1, 8, tzinfo='US/Central').shift(weekday=1)
 
 
 def adjourning_date(lege):
@@ -43,6 +43,7 @@ def current_lege(date=None, prefiling=False):
 
     WARNING: if you create an Arrow object without specifying a time zone, then pass it into this method, it will default to UTC, be changed to the preceding day when it is converted to Central Time, and return results for the day prior to the one you wanted. To fix this, pass tzinfo='US/Central' to the Arrow constructor.
     """
+    # We can't just use UTC 00:00 dates because then it'll be wrong when we pass the current time in (leaving date equal to None). We want computation based on the current time to be in Central Time.
     if date is None:
         date = arrow.now('US/Central')
     else:
