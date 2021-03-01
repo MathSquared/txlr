@@ -18,6 +18,12 @@ Each redirector is added to the REDIRECTORS tuple in this module. If one or more
 """
 
 
+import re
+
+from . import utils
+from .utils import canonicalize
+
+
 # A word on security.
 #
 # In theory, txlr cannot cause a user security harm that they did not wreak on themselves, because txlr only deterministically transforms the user's input and redirects them to a website determined by their input.
@@ -33,6 +39,69 @@ Each redirector is added to the REDIRECTORS tuple in this module. If one or more
 # These rules will ensure that txlr queries are fast, secure, and reliable.
 
 
+def statute(q):
+    q = canonicalize(q)
+    # Liberal pattern because of janky queries like 6-1/2 and 4413(47e-1)
+    PAT = '([a-z0-9]{2})([A-Za-z0-9._/()-]+)'
+    m = re.fullmatch(PAT, q)
+    if m:
+        code = m.group(1).upper()
+        section = m.group(2)
+
+        if code not in utils.VALID_CODES:
+            return (False, 'The code of law you gave is invalid')
+
+        # Link construction: https://statutes.capitol.texas.gov/LinksFAQ.aspx
+        # We build links directly because we want to support subchapters (101.B), which GetStatute won't recognize.
+        url = 'https://statutes.capitol.texas.gov/docs/{code}/htm/{code}.{chapter}.htm#{anchor}'
+        chapter = ''
+        anchor = ''
+
+        if code == 'CV':
+            # For civil statutes, we can search by title.chapter or by article
+            if '.' in section:
+                # title.chapter
+                section = section.upper()
+                if re.fullmatch('[A-Z0-9]+[.][A-Z0-9_/-]+', section):
+                    chapter = section.replace('/', '_')  # Title 71, Chapter 6-1/2, Abortion
+                else:
+                    return (False, 'The Civil Statutes chapter number you gave is invalidly formatted')
+            else:
+                # article
+                # Let's just trust them on the article number bc Vernon's is a shitshow
+                chapter = section
+                # TODO I thought GetStatute worked for types other than Word...?
+                url = 'https://statutes.capitol.texas.gov/GetStatute.aspx?DocumentType=Word&Value={code}.{chapter}'
+        else:
+            section = section.upper()
+
+            # Some checks on the section to make sure it's a decent section
+            if not re.fullmatch('[0-9][A-Z0-9-]*([.][A-Z0-9-]*)?', section):
+                return (False, 'The code section number you gave is invalidly formatted; it must start with a number and contain alphanumeric characters, dashes, and at most one decimal point')
+
+            # We can search by chapter (article for the Constitution), section, or subchapter
+            # A dot can precede nothing to indicate a chapter search alone,
+            # so for this test we ignore a dot in the final position
+            if '.' in section[:-1]:
+                # chapter.section or chapter.subchapter
+                # Subchapters begin with letters
+                predot, postdot = section.split('.', 1)
+                if postdot[0].isalpha():
+                    chapter = predot
+                    anchor = postdot
+                else:
+                    chapter = predot
+                    anchor = section
+            else:
+                if section[-1] == '.':
+                    section = section[:-1]
+                chapter = section
+
+        return (True, url.format(code=code, chapter=chapter, anchor=anchor))
+    else:
+        return (False, None)
+
+
 def house_bill(q):
     # This will be written more robustly Soon(tm).
     if q.isascii() and len(q) >= 3 and q[0] in 'hH' and q[1] in 'bB' and q[2:].isdigit():
@@ -45,5 +114,6 @@ house_bill.pattern = 'hb<number>'
 
 
 REDIRECTORS = (
+    statute,
     house_bill,
 )
