@@ -104,6 +104,18 @@ statute.title = 'Constitution and statutes'
 statute.pattern = '<code><chapter>[.[<section|subchapter>]], cn<article>.<section>, cv<title>.<chapter>, cv<article>'
 
 
+def statute_toc(q):
+    q = canonicalize(q).upper()
+    if q in utils.VALID_CODES:
+        return (True, 'https://statutes.capitol.texas.gov/?link={}'.format(q))
+    elif len(q) == 2:
+        return (False, 'The code of law you provided is not valid')
+    else:
+        return (False, None)
+statute_toc.title = 'Constitution and statutes, code table of contents'
+statute_toc.pattern = '<code>'
+
+
 def house_bill(q):
     # This will be written more robustly Soon(tm).
     if q.isascii() and len(q) >= 3 and q[0] in 'hH' and q[1] in 'bB' and q[2:].isdigit():
