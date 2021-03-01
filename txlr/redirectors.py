@@ -100,6 +100,8 @@ def statute(q):
         return (True, url.format(code=code, chapter=chapter, anchor=anchor))
     else:
         return (False, None)
+statute.title = 'Constitution and statutes'
+statute.pattern = '<code><chapter>[.[<section|subchapter>]], cn<article>.<section>, cv<title>.<chapter>, cv<article>'
 
 
 def house_bill(q):
