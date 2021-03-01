@@ -1,4 +1,4 @@
-from flask import redirect, request
+from flask import redirect, render_template, request
 
 from . import app
 from .redirectors import REDIRECTORS
@@ -6,7 +6,7 @@ from .redirectors import REDIRECTORS
 
 @app.route('/')
 def index():
-    return 'Hello, World!'
+    return render_template('index.html')
 
 
 @app.route('/go')
