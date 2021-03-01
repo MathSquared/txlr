@@ -129,5 +129,6 @@ house_bill.pattern = 'hb<number>'
 
 REDIRECTORS = (
     statute,
+    statute_toc,
     house_bill,
 )
