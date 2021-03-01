@@ -3,6 +3,13 @@
 import arrow
 
 
+# Change these to modify the behavior of current_session.
+# TODO factor these out into a config file or something.
+CURRENT_SPECIAL = (0, 0)
+UPCOMING_SPECIAL_PREFILE = arrow.Arrow(2000, 1, 1, tzinfo='US/Central')
+UPCOMING_SPECIAL_CONVENE = arrow.Arrow(2000, 1, 1, tzinfo='US/Central')
+
+
 def lege_year(lege):
     """First year of the regular session of the given legislature. Accurate from 12th Legislature onwards."""
     return 1847 + 2 * lege
@@ -63,6 +70,21 @@ def current_lege(date=None, prefiling=False):
                 return base + 1
             else:
                 return base
+
+
+def current_session(date=None, prefiling=False):
+    """The current session of the Legislature, a tuple of the Legislature and the regular (0) or called (>0) session.
+
+    Since special sessions happen at the call of the governor, this is manually updated. Specifically, if the return value of current_lege is the first element of CURRENT_SPECIAL, the returned session from this method is the second element of the same, incremented by one if the given date is on or after UPCOMING_SPECIAL_CONVENE (if prefiling is False) or UPCOMING_SPECIAL_PREFILE (if prefiling is True).
+    """
+    lege = current_lege(date, prefiling)
+    if lege == CURRENT_SPECIAL[0]:
+        session = CURRENT_SPECIAL[1]
+        if date >= (UPCOMING_SPECIAL_PREFILE if prefiling else UPCOMING_SPECIAL_CONVENE):
+            session += 1
+        return (lege, session)
+    else:
+        return (lege, 0)
 
 
 def canonicalize(q):
