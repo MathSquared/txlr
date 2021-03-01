@@ -63,3 +63,46 @@ def current_lege(date=None, prefiling=False):
                 return base + 1
             else:
                 return base
+
+
+def canonicalize(q):
+    """Returns the query lowercased and with spaces removed.
+
+    Most queries are case-insensitive and ignore spaces. This function implements this transformation.
+    """
+    return q.lower().replace(' ', '')
+
+
+VALID_CODES = [
+    'CN',  # Constitution
+    'AG',  # Agriculture
+    'AL',  # Alcoholic Beverage
+    'WL',  # Auxiliary Water Laws
+    'BC',  # Business & Commerce
+    'BO',  # Business Organizations
+    'CP',  # Civil Practice & Remedies
+    'CR',  # Criminal Procedure
+    'ED',  # Education
+    'EL',  # Election
+    'ES',  # Estates
+    'FA',  # Family
+    'FI',  # Finance
+    'GV',  # Government (this one's a BIG boi)
+    'HS',  # Health & Safety
+    'HR',  # Human Resources (conflict with House Resolution)
+    'IN',  # Insurance
+    'I1',  # Insurance - Not Codified
+    'LA',  # Labor
+    'LG',  # Local Government
+    'NR',  # Natural Resources
+    'OC',  # Occupations
+    'PW',  # Parks & Wildlife
+    'PE',  # Penal
+    'PR',  # Property
+    'SD',  # Special District Local Laws
+    'TX',  # Tax
+    'TN',  # Transportation
+    'UT',  # Utilities
+    'WA',  # Water
+    'CV',  # Vernon's Civil Statutes (the uncodified dumpster fire)
+]
